@@ -138,4 +138,5 @@ dmypy.json
 cython_debug/
 
 # Jupyter notebook
+.ipynb_checkpoints
 */.ipynb_checkpoints/*

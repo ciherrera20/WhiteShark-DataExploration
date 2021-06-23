@@ -1,0 +1,30 @@
+# This yaml file contains parameters for visualize.py
+# Paths are relative to the location of this config file.
+# All arguments provided here can be overriden by command line arguments
+
+# CSV file containing the telemetry data to visualize.
+positions:                '../data/SharkArray-2020-05-21-thru-05-28.csv'
+
+# CSV file containing the receiver locations.
+receivers:                '../data/VPS-Station-Locations.csv'
+
+# Name of the output html map file. Defaults to ./map.html
+output:                   '../maps/SharkArray-2020-05-21-thru-05-28.html'
+
+# JSON file containing the map configuration given to KeplerGl.
+map-config:               './map-config.json'
+
+# Number of interpolated points to calculate. Defaults to 100.
+num-interpolated-points:  200
+
+# Maximum distance (in meters) between significant points when aggregating trajectories. Defaults to 100.0.
+max-distance:             359
+
+# Minimum distance (in meters) between significant points when aggregating trajectories. Defaults to 10.0.
+min-distance:             35.9
+
+# Minimum duration (in seconds) required for stop detection when aggregating trajectories. Defaults to 3600.
+min-stop-duration:        3600
+
+# Minimum angle (in degrees) for significant point extraction when aggregating trajectories. Defaults to 45.0.
+min-angle:                45

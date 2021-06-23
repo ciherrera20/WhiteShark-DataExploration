@@ -25,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument('-st', '--start-time', help='Start time for the time range to filter the data by. Defaults to \'2020-05-21 00:00:00\'.')
     parser.add_argument('-et', '--end-time', help='End time for the time range to filter the data by. Defaults to \'2020-05-22 00:00:00\'.')
     parser.add_argument('-il', '--id-list', nargs='*', help='List of ids to filter the data by. Defaults to [\'2020-20\'].')
-    parser.add_argument('-ifm', '--id-filter-mode', type=str, choices=['include', 'exlude'], help='Mode for filtering by id. Include mode keeps only the ids given for id-list, while exlcude mode keeps all the others. Defaults to \'include\'.')
+    parser.add_argument('-ifm', '--id-filter-mode', type=str, choices=['include', 'exclude'], help='Mode for filtering by id. Include mode keeps only the ids given for id-list, while exlcude mode keeps all the others. Defaults to \'include\'.')
     args = parser.parse_args()
 
     # Parameter defaults
@@ -55,6 +55,7 @@ if __name__ == '__main__':
     for key, val in defaults.items():
         if params[key] is None:
             params[key] = val
+    print('params:', params)
 
     # Read data from input file
     shark_df = pd.read_csv(params['input'])

@@ -113,7 +113,7 @@ if __name__ == '__main__':
     parser.add_argument('output', nargs='?', help='Name of the output html map file. Defaults to \'./map.html\'.')
     parser.add_argument('-c', '--config', help='Name of the config yaml file to use. All of the other arguments can be provided there using the long argument name without the starting dashes.')
     parser.add_argument('-mc', '--map-config', help='JSON file containing the map configuration given to KeplerGl.')
-    parser.add_argument('-np', '--num-interpolated-points', type=int, help='Number of interpolated points to calculate. Defaults to 100.')
+    parser.add_argument('-nip', '--num-interpolated-points', type=int, help='Number of interpolated points to calculate. Defaults to 100.')
     parser.add_argument('-mxd', '--max-distance', type=float, help='Maximum distance (in meters) between significant points when aggregating trajectories. Defaults to 10.0.')
     parser.add_argument('-mnd', '--min-distance', type=float, help='Minimum distance (in meters) between significant points when aggregating trajectories. Defaults to 1.0.')
     parser.add_argument('-msd', '--min-stop-duration', type=int, help='Minimum duration (in seconds) required for stop detection when aggregating trajectories. Defaults to 3600.')
@@ -148,6 +148,7 @@ if __name__ == '__main__':
     for key, val in defaults.items():
         if params[key] is None:
             params[key] = val
+    print('params:', params)
 
     # Read data from files
     receivers_gdf = get_receivers_gdf(params['receivers'])
@@ -178,7 +179,22 @@ if __name__ == '__main__':
     m.add_data(interpolated_gdf.copy(), 'interpolated')
     m.save_to_html(file_name=params['output'], config=map_config)
 
-    ans = input('To avoid having to re-process the data to save your map configuration, would you like to reload the map config file and save the map again? (y/n): ')
-    if ans.lower() in ['yes', 'y', 'yea', 'ye', 'yep', 'ok', 'sounds good']:
-        map_config = get_map_config(params['map_config'])
-        m.save_to_html(file_name=params['output'], config=map_config)
+    # Give the option to re-save the map
+    print('')
+    re_save = True
+    while (re_save):
+        print('Would you like to save the map again with a new configuration to avoid having to re-process the data?')
+        ans = input('(y/n), or enter a path to a new map config file: ')
+        if os.path.isfile(ans):
+            map_config = get_map_config(ans)
+            print('Using config file', ans)
+            m.save_to_html(file_name=params['output'], config=map_config)
+        elif ans.lower() in ['yes', 'y', 'yea', 'ye', 'yep', 'ok', 'sounds good']:
+            map_config = get_map_config(params['map_config'])
+            print('Using original config file')
+            m.save_to_html(file_name=params['output'], config=map_config)
+        elif ans.lower() in ['no', 'n', 'nope', 'nop', 'exit', ':q']:
+            re_save = False
+        else:
+            print('The given path is not a file')
+        print('')

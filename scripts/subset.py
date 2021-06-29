@@ -7,7 +7,14 @@ import os
 def filter_time(df, start_time=datetime(2020, 5, 21, 20, 0, 0), end_time=datetime(2020, 5, 21, 23, 0, 0)):
     '''Filter out rows whose time does not fall between the given start and end times.'''
     dates = pd.to_datetime(df['DATETIME'])
-    return df[(start_time <= dates) & (dates <= end_time)]
+    if start_time == None and end_time == None:
+        return df
+    elif start_time == None:
+        return df[(dates <= end_time)]
+    elif end_time == None:
+        return df[(start_time <= dates)]
+    else:
+        return df[(start_time <= dates) & (dates <= end_time)]
 
 def filter_id(df, id_list = ['2020-19'], mode='include'):
     '''Filter out whose transmitter id is in the id list, or is not in the id list if mode is set to exclude.'''
@@ -22,18 +29,23 @@ if __name__ == '__main__':
     parser.add_argument('input', nargs='?', help='CSV file containing the input telemetry data.')
     parser.add_argument('output', nargs='?', help='CSV file containing the output telemetry data subset. Defaults to \'./subset.csv\'.')
     parser.add_argument('-c', '--config', help='Name of the config yaml file to use. All of the other arguments can be provided there using the long argument name without the starting dashes.')
-    parser.add_argument('-st', '--start-time', help='Start time for the time range to filter the data by. Defaults to \'2020-05-21 00:00:00\'.')
-    parser.add_argument('-et', '--end-time', help='End time for the time range to filter the data by. Defaults to \'2020-05-22 00:00:00\'.')
-    parser.add_argument('-il', '--id-list', nargs='*', help='List of ids to filter the data by. Defaults to [\'2020-20\'].')
+    parser.add_argument('-st', '--start-time', nargs='*', help='Start time for the time range to filter the data by. Leave blank or set to \'None\' to not filter by start time. Defaults to \'None\'.')
+    parser.add_argument('-et', '--end-time', nargs='*', help='End time for the time range to filter the data by. Leave blank or set to \'None\' to not filter by end time. Defaults to \'None\'.')
+    parser.add_argument('-il', '--id-list', nargs='*', help='List of ids to filter the data by. Defaults to [].')
     parser.add_argument('-ifm', '--id-filter-mode', type=str, choices=['include', 'exclude'], help='Mode for filtering by id. Include mode keeps only the ids given for id-list, while exlcude mode keeps all the others. Defaults to \'include\'.')
     args = parser.parse_args()
+    print(args)
+    if args.start_time != None:
+        args.start_time = ' '.join(args.start_time)
+    if args.end_time != None:
+        args.end_time = ' '.join(args.end_time)
 
     # Parameter defaults
     defaults = {
         'output': 'subset.csv',
-        'start_time': '2020-05-21 00:00:00',
-        'end_time': '2020-05-22 00:00:00', 
-        'id_list': ['params'],
+        'start_time': 'None',
+        'end_time': 'None',
+        'id_list': [],
         'id_filter_mode': 'include'
     }
 
@@ -61,8 +73,14 @@ if __name__ == '__main__':
     shark_df = pd.read_csv(params['input'])
     
     # Filter data
-    start_time = datetime.fromisoformat(params['start_time'])
-    end_time = datetime.fromisoformat(params['end_time'])
+    if params['start_time'].lower() in ['', 'none']:
+        start_time = None
+    else:
+        start_time = datetime.fromisoformat(params['start_time'])
+    if params['end_time'].lower() in ['', 'none']:
+        end_time = None
+    else:
+        end_time = datetime.fromisoformat(params['end_time'])
     shark_df = filter_id(filter_time(shark_df, start_time=start_time, end_time=end_time), id_list=params['id_list'], mode=params['id_filter_mode'])
 
     # Write data to output file

@@ -84,4 +84,4 @@ if __name__ == '__main__':
     shark_df = filter_id(filter_time(shark_df, start_time=start_time, end_time=end_time), id_list=params['id_list'], mode=params['id_filter_mode'])
 
     # Write data to output file
-    shark_df.to_csv(params['output'])
+    shark_df.to_csv(params['output'], index=False)

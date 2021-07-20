@@ -400,7 +400,7 @@
             "columns": {
               "geojson": "geometry"
             },
-            "isVisible": True,
+            "isVisible": False,
             "visConfig": {
               "opacity": 0.7,
               "strokeOpacity": 0.8,
@@ -500,7 +500,7 @@
             "columns": {
               "geojson": "geometry"
             },
-            "isVisible": True,
+            "isVisible": False,
             "visConfig": {
               "opacity": 0.8,
               "strokeOpacity": 0.5,
@@ -909,8 +909,8 @@
     "mapState": {
       "bearing": 0,
       "dragRotate": False,
-      "latitude": 34.398695414446685,
-      "longitude": -119.5419099765525,
+      "latitude": 34.398144591497534,
+      "longitude": -119.5433934426323,
       "pitch": 0,
       "zoom": 13.210593536986512,
       "isSplit": False

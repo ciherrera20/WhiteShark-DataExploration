@@ -1,4 +1,6 @@
 import pandas as pd
+from pandas.api.types import is_string_dtype
+from pandas.api.types import is_numeric_dtype
 import geopandas as gpd
 import movingpandas as mpd
 from shapely.geometry import Point
@@ -38,7 +40,8 @@ def get_shark_gdf(filename):
     '''Load shark position data into a GeoDataFrame'''
     shark_gdf = pd.read_csv(filename)
     shark_gdf['t'] = pd.to_datetime(shark_gdf['DATETIME'])
-    shark_gdf = gpd.GeoDataFrame(shark_gdf[['TRANSMITTER', 't']], geometry=gpd.points_from_xy(shark_gdf.LON, shark_gdf.LAT))
+    # shark_gdf = gpd.GeoDataFrame(shark_gdf[['TRANSMITTER', 't']], geometry=gpd.points_from_xy(shark_gdf.LON, shark_gdf.LAT))
+    shark_gdf = gpd.GeoDataFrame(shark_gdf, geometry=gpd.points_from_xy(shark_gdf.LON, shark_gdf.LAT))
     shark_gdf = shark_gdf.set_crs('EPSG:4326')
     shark_gdf = shark_gdf.set_index('t').tz_localize(None)
     return shark_gdf
@@ -59,17 +62,52 @@ def get_map_config(filename):
 
 def get_trajectories_gdf(traj_col):
     '''Convert a TrajectoryCollection into a GeoDataFrame suitable for KeplerGl'''
-    data = []
+    # Concatenate dataframes in each trajectory
+    trajectories_gdf = pd.concat([traj.df for traj in traj_col.trajectories])
+    trajectories_gdf = trajectories_gdf.reset_index(drop=True)
+
+    # Define names for new columns
+    new_cols = ['t', 'lon', 'lat', 'prev_lon', 'prev_lat', 'TRANSMITTER', 'geometry']
+
+    # Create a dictionary to hold the data
+    data = {col_name: [] for col_name in new_cols}
+
+    # Loop through each trajectory
     for traj in traj_col.trajectories:
+        # Add the data
         for i, (timestamp, row) in zip(range(traj.df.shape[0]), traj.df.iterrows()):
-            if i == 0:
-                continue
+            # Get latitude and longitude
             point = row['geometry']
-            prev_point = traj.df['geometry'][i - 1]
             x, y = point.coords[0]
-            prev_x, prev_y = prev_point.coords[0]
-            data.append([str(timestamp), x, y, prev_x, prev_y, row['TRANSMITTER'], point])
-    return gpd.GeoDataFrame(data, columns=['t', 'lon', 'lat', 'prev_lon', 'prev_lat', 'TRANSMITTER', 'geometry'])
+
+            # Get previous latitude and longitude, or the current one if there is no previous one
+            if i == 0:
+                prev_x = x
+                prev_y = y
+            else:
+                prev_point = traj.df['geometry'][i - 1]
+                prev_x, prev_y = prev_point.coords[0]
+
+            # Append the data
+            for col_name, value in zip(new_cols, [str(timestamp), x, y, prev_x, prev_y, str(row['TRANSMITTER']), point]):
+                data[col_name].append(value)
+
+    # Filter out columns that already exist in the dataframe
+    filtered_cols = [col_name for col_name in new_cols if col_name not in trajectories_gdf.columns]
+    
+    # Add columns that do not already exist
+    for col_name in filtered_cols:
+        trajectories_gdf[col_name] = data[col_name]
+
+    # Drop non-numeric datatypes, since most are not JSON serializable
+    drop_cols = []
+    for col_name, dtype in trajectories_gdf.dtypes.items():
+        if (not is_numeric_dtype(dtype) and col_name not in new_cols) or col_name in ['LAT', 'LON']:
+            drop_cols.append(col_name)
+    trajectories_gdf = trajectories_gdf.drop(columns=drop_cols)
+
+    # Return the newly built trajectories GeoDataFrame
+    return trajectories_gdf
 
 def traj_contains_time(traj, time):
     '''Returns whether or not a time falls between a trajectory's start and end time'''

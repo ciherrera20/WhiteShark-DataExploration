@@ -11,6 +11,7 @@ import argparse
 import json
 import yaml
 import os
+from common import get_shark_gdf
 
 def get_receivers_gdf(filename):
     '''Load receiver positions from a CSV into a GeoDataFrame'''
@@ -35,16 +36,6 @@ def get_receiver_array_size(receivers_gdf):
     bounds_gdf = bounds_gdf.to_crs(crs=aeqd)
     width, height = bounds_gdf['geometry'][1].coords[0]
     return width, height
-
-def get_shark_gdf(filename):
-    '''Load shark position data into a GeoDataFrame'''
-    shark_gdf = pd.read_csv(filename)
-    shark_gdf['t'] = pd.to_datetime(shark_gdf['DATETIME'])
-    # shark_gdf = gpd.GeoDataFrame(shark_gdf[['TRANSMITTER', 't']], geometry=gpd.points_from_xy(shark_gdf.LON, shark_gdf.LAT))
-    shark_gdf = gpd.GeoDataFrame(shark_gdf, geometry=gpd.points_from_xy(shark_gdf.LON, shark_gdf.LAT))
-    shark_gdf = shark_gdf.set_crs('EPSG:4326')
-    shark_gdf = shark_gdf.set_index('t').tz_localize(None)
-    return shark_gdf
 
 def get_map_config(filename):
     '''Load map config json file into python object'''

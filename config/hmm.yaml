@@ -1,0 +1,9 @@
+# This yaml file contains parameters for hmm.py
+# Paths are relative to the location of this config file.
+# All arguments provided here can be overriden by command line arguments
+
+# CSV file containing the input telemetry data.
+input:          '../data/2020-21-477-long-15-min-run.csv'
+
+# CSV file containing the output telemetry data subset. Defaults to './subset.csv'.
+output:         '../graphs'

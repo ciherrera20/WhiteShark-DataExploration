@@ -6,13 +6,13 @@
 input:          '../data/SharkArray-01.csv'
 
 # CSV file containing the output telemetry data subset. Defaults to './subset.csv'.
-output:         '../data/SharkArray-2020-05-21.csv'
+output:         '../data/2020-20-full.csv'
 
 # Start time for the time range to filter the data by. Leave blank or set to 'None' to not filter by start time. Defaults to '2020-05-21 00:00:00'.
 start-time:     '2020-05-21 00:00:00'
 
 # End time for the time range to filter the data by. Leave blank or set to 'None' to not filter by end time. Defaults to '2020-05-22 00:00:00'.
-end-time:       '2020-05-22 00:00:00'
+end-time:       '2020-09-28 00:00:00'
 
 # List of ids to filter the data by. Defaults to ['2020-20'].
 id-list:

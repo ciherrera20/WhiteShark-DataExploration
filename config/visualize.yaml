@@ -3,13 +3,13 @@
 # All arguments provided here can be overriden by command line arguments
 
 # CSV file containing the telemetry data to visualize.
-positions:                '../data/2020-21-max-3-min-run-3-states-with-speeds.csv'
+positions:                '../data/2020-20-max-3-min-run-2-states-with-speeds.csv'
 
 # CSV file containing the receiver locations.
 receivers:                '../data/VPS-Station-Locations.csv'
 
 # Name of the output html map file. Defaults to ./map.html
-output:                   '../maps/3-min-run-3-states-with-speeds.html'
+output:                   '../maps/2020-20-max-3-min-run-2-states-with-speeds.html'
 
 # JSON file containing the map configuration given to KeplerGl.
 map-config:               './map-config-2020-21-max-3-min-run-2-states.json'

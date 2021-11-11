@@ -24,6 +24,17 @@ def filter_id(df, id_list = ['2020-19'], mode='include'):
         df = df[~df['TRANSMITTER'].isin(id_list)]
     return df
 
+def subset(input, output, start_time, end_time, id_list, id_filter_mode, shark_df=None):
+    # Read data from input file
+    if shark_df is None:
+        shark_df = pd.read_csv(input)
+    
+    # Filter data
+    shark_df = filter_id(filter_time(shark_df, start_time=start_time, end_time=end_time), id_list=id_list, mode=id_filter_mode)
+
+    # Write data to output file
+    shark_df.to_csv(output, index=False)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create a subset of telemetry data by filtering over a time range and over a list of transmitter ids.')
     parser.add_argument('input', nargs='?', help='CSV file containing the input telemetry data.')
@@ -69,10 +80,6 @@ if __name__ == '__main__':
             params[key] = val
     print('params:', params)
 
-    # Read data from input file
-    shark_df = pd.read_csv(params['input'])
-    
-    # Filter data
     if params['start_time'].lower() in ['', 'none']:
         start_time = None
     else:
@@ -81,7 +88,5 @@ if __name__ == '__main__':
         end_time = None
     else:
         end_time = datetime.fromisoformat(params['end_time'])
-    shark_df = filter_id(filter_time(shark_df, start_time=start_time, end_time=end_time), id_list=params['id_list'], mode=params['id_filter_mode'])
-
-    # Write data to output file
-    shark_df.to_csv(params['output'], index=False)
+    
+    subset(params['input'], params['output'], start_time, end_time, params['id_list'], params['id_filter_mode'])

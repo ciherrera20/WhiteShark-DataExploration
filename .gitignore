@@ -144,3 +144,5 @@ cython_debug/
 # Large dataset files
 SharkArray-01.csv
 SharkArray-02.csv
+
+*.zip

@@ -3,7 +3,7 @@
 # All arguments provided here can be overriden by command line arguments
 
 # CSV file containing the input telemetry data.
-input:          '../data/2020-21/2020-21-477-long-15-min-run-temps.csv'
+input:          '../data/2020-21/runs/477-long-15-min.csv'
 
 # CSV file containing the output telemetry data subset. Defaults to './subset.csv'.
 output:         '../models'

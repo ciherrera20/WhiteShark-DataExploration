@@ -48,10 +48,17 @@ ids = [
     '2020-42'
 ]
 
-for id in ids:
-    runs_dir = '../data/{}/runs'.format(id, id)
-    if os.path.isdir(runs_dir):
-        for run in os.listdir(runs_dir):
-            hmm.main(os.path.join(runs_dir, run), '../models', 2, observation_types=['turning_angle', 'speed'], covariate_types=['temperature'], overwrite=False)
-    else:
-        print('No runs found for {}'.format(id))
+param_tuples = cartesian_product([['turning_angle', 'speed'] + ls for ls in powerset(['depth'])], powerset(['temperature', 'depth']))
+
+if __name__ == '__main__':
+    for obs_types, cov_types in param_tuples:
+        for id in ids:
+            runs_dir = '../data/{}/runs'.format(id)
+            if os.path.isdir(runs_dir):
+                for run in os.listdir(runs_dir):
+                    try:
+                        hmm.main(os.path.join(runs_dir, run), '../models', 2, observation_types=obs_types, covariate_types=cov_types, overwrite=True)
+                    except Exception as err:
+                        print(err)
+            else:
+                print('No runs found for {}'.format(id))

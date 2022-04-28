@@ -6,7 +6,7 @@ from subset import subset
 from common import mkdir
 import os
 
-def extract_runs(input, minutes):
+def extract_runs(input, minutes, id):
     print('Getting shark gdf...')
     shark_gdf = get_shark_gdf(input)
     traj = mpd.TrajectoryCollection(shark_gdf, 'TRANSMITTER').trajectories[0]
@@ -14,7 +14,7 @@ def extract_runs(input, minutes):
     all_split_trajs = mpd.ObservationGapSplitter(traj).split(gap=timedelta(minutes=minutes))
     split_trajs = [trajectory for trajectory in all_split_trajs.trajectories if trajectory.size() > 100]
     print('Creating output directory...')
-    outputdir = '../data/2020-21/runs'
+    outputdir = '../data/{}/runs'.format(id)
     mkdir(outputdir)
     print('Saving trajectories...')
     for split_traj in split_trajs:
@@ -47,11 +47,16 @@ ids = [
     '2020-42'
 ]
 
-minutes = 15
+# ids = [
+#     '2020-13'
+# ]
+
+minutes = 3
 for id in ids:
     print('Extracting runs for {}'.format(id))
     input = '../data/{}/{}-full-temps.csv'.format(id, id)
+    # input = '../data/{}/{}-full.csv'.format(id, id)
     try:
-        extract_runs(input, minutes)
+        extract_runs(input, minutes, id)
     except:
         print('Unable to extract runs for {}'.format(id))

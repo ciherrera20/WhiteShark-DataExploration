@@ -3,7 +3,7 @@
 # All arguments provided here can be overriden by command line arguments
 
 # CSV file containing the input telemetry data.
-input:          '../data/2020-21/runs/477-long-15-min.csv'
+input:          '../data/2020-21/runs/102-long-3-min.csv'
 
 # CSV file containing the output telemetry data subset. Defaults to './subset.csv'.
 output:         '../models'
@@ -12,4 +12,4 @@ num-states: 2
 
 observation-types: ['turning_angle', 'speed']
 
-covariate-types: ['temperature']
+covariate-types: []

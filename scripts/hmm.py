@@ -72,6 +72,7 @@ def main(input, output, num_states, observation_types=[], covariate_types=[], ov
     filepath = os.path.normpath(input)
     filename = os.path.splitext(os.path.basename(filepath))[0]
 
+    # Get shark dataframe and turn it into a trajectory
     shark_gdf = get_shark_gdf(filepath)
     traj = mpd.TrajectoryCollection(shark_gdf, 'TRANSMITTER').trajectories[0]
     add_columns(traj)
@@ -172,30 +173,32 @@ def main(input, output, num_states, observation_types=[], covariate_types=[], ov
 
     # Plot and save depths
     # depths = np.log(np.exp(10**4 * np.array(traj.df['DEPTH'])) + 1) / (10**4)
-    depths = softplus(np.array(traj.df['DEPTH']), sharpness=1e3)
-    if not os.path.isfile(get_savename('depths', no_model_path=True)) or overwrite:
-        print('Creating depth histogram')
-        plt.hist(depths, bins=np.linspace(0, np.ceil(np.max(depths)), 30))
-        plt.title('Depth histogram')
-        plt.xlabel('depth (m)')
-        plt.ylabel('counts')
-        savefig('depths', no_model_path=True)
-    else:
-        print('Depth histogram already exists')
+    if 'depth' in observation_types or 'depth' in covariate_types:
+        depths = softplus(np.array(traj.df['DEPTH']), sharpness=1e3)
+        if not os.path.isfile(get_savename('depths', no_model_path=True)) or overwrite:
+            print('Creating depth histogram')
+            plt.hist(depths, bins=np.linspace(0, np.ceil(np.max(depths)), 30))
+            plt.title('Depth histogram')
+            plt.xlabel('depth (m)')
+            plt.ylabel('counts')
+            savefig('depths', no_model_path=True)
+        else:
+            print('Depth histogram already exists')
 
     # Plot and save temperatures
-    temperatures = np.array(traj.df['Temp_C'])
-    temperatures -= np.min(temperatures)
-    temperatures = iir_filter(temperatures, ff=0.3)
-    if not os.path.isfile(get_savename('temperatures', no_model_path=True)) or overwrite:
-        print('Creating temperature histogram')
-        plt.hist(temperatures, bins=np.linspace(np.floor(np.min(temperatures)), np.ceil(np.max(temperatures)), 30))
-        plt.title('Temperature histogram')
-        plt.xlabel('Temperautre (C)')
-        plt.ylabel('counts')
-        savefig('temperatures', no_model_path=True)
-    else:
-        print('Temperature histogram already exists')
+    if 'temperature' in covariate_types:
+        temperatures = np.array(traj.df['Temp_C'])
+        temperatures -= np.min(temperatures)
+        temperatures = iir_filter(temperatures, ff=0.3)
+        if not os.path.isfile(get_savename('temperatures', no_model_path=True)) or overwrite:
+            print('Creating temperature histogram')
+            plt.hist(temperatures, bins=np.linspace(np.floor(np.min(temperatures)), np.ceil(np.max(temperatures)), 30))
+            plt.title('Temperature histogram')
+            plt.xlabel('Temperautre (C)')
+            plt.ylabel('counts')
+            savefig('temperatures', no_model_path=True)
+        else:
+            print('Temperature histogram already exists')
 
     # Package together all of the observations
     observations = []
@@ -246,6 +249,15 @@ def main(input, output, num_states, observation_types=[], covariate_types=[], ov
             initial_value=np.zeros(num_states, dtype=np.float32) + 1e-2,
             bijector=tfp.bijectors.Softplus(low=1e-3),
             name='angle_cons')
+        # angle_locs = tfp.util.TransformedVariable(
+        #     initial_value=np.array([0.04, 0.19], dtype=np.float32),
+        #     bijector=tfp.bijectors.Sigmoid(low=-np.pi, high=np.pi),
+        #     name='angle_locs')
+        
+        # angle_cons = tfp.util.TransformedVariable(
+        #     initial_value=np.array([4.03, 0.14], dtype=np.float32),
+        #     bijector=tfp.bijectors.Softplus(low=1e-3),
+        #     name='angle_cons')
         dists.append(tfd.VonMises(loc=angle_locs, concentration=angle_cons))
 
     if 'speed' in observation_types:
@@ -322,7 +334,7 @@ def main(input, output, num_states, observation_types=[], covariate_types=[], ov
 
     # Define an optimizer to perform back propagation
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.1)
-    criterion = tfp.optimizer.convergence_criteria.LossNotDecreasing(rtol=0.01)
+    criterion = tfp.optimizer.convergence_criteria.LossNotDecreasing(rtol=0.001)
 
     print('Training the hmm:')
 
@@ -506,6 +518,18 @@ def main(input, output, num_states, observation_types=[], covariate_types=[], ov
             'gamma_rates': depth_rates.numpy().tolist()
         }
     data_obj['obs_dist_params'] = obs_dist_params
+    data_obj['log_likelihood'] = -loss_history[-1].numpy().tolist()
+
+    # Initial probability distribution + state dependent distribution params
+    num_params = num_states + (2 * num_obs_types * num_states)
+    if num_cov_types != 0:
+        # Add in regression coefficients
+        num_params += (num_states * (num_states - 1)) * num_cov_types
+    else:
+        # Add in transition probabilities
+        num_params += num_states**2 - num_states
+    data_obj['num_params'] = num_params
+    data_obj['bayesian_information_criterion'] = num_params * np.log(num_observations) - 2 * data_obj['log_likelihood']
 
     # # Save the observations used
     # data_obj['observations'] = observations.tolist()

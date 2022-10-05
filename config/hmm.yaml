@@ -10,6 +10,8 @@ output:         '../models'
 
 num-states: 2
 
+# observation-types: ['turning_angle', 'speed', 'depth']
 observation-types: ['turning_angle', 'speed']
 
+# covariate-types: ['temperature', 'depth']
 covariate-types: []

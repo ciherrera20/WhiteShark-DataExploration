@@ -4,20 +4,14 @@ import os
 import yaml
 import json
 import pandas as pd
-# from geopandas import GeoDataFrame, read_file
-# from shapely.geometry import Point, LineString, Polygon
 from datetime import datetime, timedelta
 import movingpandas as mpd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-# import scipy
-# import scipy.ndimage as ndi
 import tensorflow.compat.v2 as tf
-# tf.enable_v2_behavior()
 import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
-# import scipy.stats
 from common import get_shark_gdf, wrap_to_pi, mkdir, softplus, iir_filter
 from tqdm import tqdm
 

@@ -25,6 +25,10 @@ def softplus(x, sharpness=1):
     return np.maximum(x, 0) + np.log(np.exp(-1 * np.abs(sharpness * x)) + 1) / sharpness
 
 def iir_filter(x, ff=1):
+    # First-order IIR filter (infinite impulse response)
+    # Essentially acts as a low pass filter with a time constant dependent on
+    # the sampling period and the coefficient used (ff):
+    # http://www.tsdconseil.fr/tutos/tuto-iir1-en.pdf
     y = [x[0]]
     for i, x_i in enumerate(x[1:]):
         y.append((1 - ff) * y[i] + ff * x_i)

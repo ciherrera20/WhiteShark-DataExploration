@@ -8,10 +8,18 @@ input:          '../data/2020-21/2020-21-full-temps.csv'
 # CSV file containing the output telemetry data subset. Defaults to './subset.csv'.
 output:         '../data/2020-21/2020-21-477-long-15-min-run-temps.csv'
 
-# Start time for the time range to filter the data by. Leave blank or set to 'None' to not filter by start time. Defaults to '2020-05-21 00:00:00'.
+"""
+Start time for the time range to filter the data by. 
+Leave blank or set to 'None' to not filter by start time. 
+Defaults to '2020-05-21 00:00:00' 
+"""
 start-time:     '2020-06-14 03:55:00'
 
-# End time for the time range to filter the data by. Leave blank or set to 'None' to not filter by end time. Defaults to '2020-05-22 00:00:00'.
+""" 
+End time for the time range to filter the data by. 
+Leave blank or set to 'None' to not filter by end time. 
+Defaults to '2020-05-22 00:00:00'.
+"""
 end-time:       '2020-06-14 18:47:00'
 
 # List of ids to filter the data by. Defaults to ['2020-20'].
@@ -28,6 +36,11 @@ end-time:       '2020-06-14 18:47:00'
 #      'In_G']
 id-list: ['2020-21']
 
-# Mode for filtering by id. Include mode keeps only the ids given for id-list, while exlcude mode keeps all the others. Defaults to 'include'.
+"""
+Mode for filtering by id. 
+Include mode keeps only the ids given for id-list, 
+exlcude mode keeps all the others. 
+Defaults to 'include'.
+"""
 # id-filter-mode: 'exclude'
 id-filter-mode: 'include'

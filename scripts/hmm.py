@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 # import scipy
 # import scipy.ndimage as ndi
-import tensorflow.compat.v2 as tf
+import tensorflow as tf
+# import tensorflow.compat.v2 as tf
 # tf.enable_v2_behavior()
 import tensorflow_probability as tfp
 from tensorflow_probability import distributions as tfd
@@ -340,7 +341,7 @@ def main(input, output, num_states, observation_types=[], covariate_types=[], ov
 
     loss_history = tfp.math.minimize(
         loss_fn=compute_loss,
-        num_steps=1000,
+        num_steps=100,
         optimizer=optimizer,
         convergence_criterion=criterion,
         trace_fn=trace_fn)

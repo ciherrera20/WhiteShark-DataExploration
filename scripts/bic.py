@@ -2,6 +2,10 @@ import hmm
 import os
 import json
 
+"""
+Runs training of HMM models with Bayesian Information Criterion (BIC)
+"""
+
 ids = [
     '2020-04',
     '2020-10',
